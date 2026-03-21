@@ -7,7 +7,7 @@ import subprocess
 def install_heavy_packages():
     # Bypassing Streamlit Cloud's 1GB memory limit constraints on PIP by installing at runtime with --no-cache-dir
     out = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "tensorflow-cpu", "opencv-python-headless", "numpy", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", "tensorflow", "opencv-python-headless", "numpy", "--no-cache-dir"],
         capture_output=True, text=True
     )
     return out
