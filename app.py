@@ -1,18 +1,37 @@
 import streamlit as st
 import os
 import sys
+import platform
 import subprocess
+
+st.title("Deepfake Detection App Simulator")
+
+python_version = sys.version.split()[0]
+arch = platform.machine()
+st.info(f"Detected Environment: Python {python_version} on {arch} architecture")
+
+if sys.version_info >= (3, 12):
+    st.error(f"🛑 CRITICAL ERROR: Streamlit Cloud built your app using Python {python_version}.")
+    st.error("Google has not released stable TensorFlow packages that work on Python 3.12 or 3.13 for Streamlit Cloud.")
+    st.warning("### Fix It In 5 Steps:")
+    st.markdown("1. Go to your Streamlit App Dashboard.")
+    st.markdown("2. Click the three dots (⋮) and **Delete** this app.")
+    st.markdown("3. Click **Deploy a New App** and type your repo: `Dhankiratsingh/detection`")
+    st.markdown("4. **CRITICAL:** At the bottom, click **Advanced Settings...** and choose **Python 3.11** !!")
+    st.markdown("5. Click Deploy!")
+    st.stop()
 
 @st.cache_resource
 def install_heavy_packages():
-    # Bypassing Streamlit Cloud's 1GB memory limit constraints on PIP by installing at runtime with --no-cache-dir
+    # Safe fallback if ARM64
+    tf_pkg = "tensorflow-cpu==2.15.0" if arch != "aarch64" else "tensorflow-aarch64"
     out = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "tensorflow", "opencv-python-headless", "numpy", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", tf_pkg, "opencv-python-headless", "numpy", "--no-cache-dir"],
         capture_output=True, text=True
     )
     return out
 
-with st.spinner("Initializing Deepfake Weights (Takes ~1 minute). Do not refresh..."):
+with st.spinner("Initializing Deepfake Weights & ML Libraries (Takes ~1 minute). Do not refresh..."):
     install_result = install_heavy_packages()
 
 if install_result.returncode != 0:
