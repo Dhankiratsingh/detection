@@ -1,9 +1,30 @@
 import streamlit as st
-import tensorflow as tf
 import os
+import sys
+import subprocess
+
+@st.cache_resource
+def install_heavy_packages():
+    # Bypassing Streamlit Cloud's 1GB memory limit constraints on PIP by installing at runtime with --no-cache-dir
+    out = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "tensorflow-cpu", "opencv-python-headless", "numpy", "--no-cache-dir"],
+        capture_output=True, text=True
+    )
+    return out
+
+with st.spinner("Initializing Deepfake Weights (Takes ~1 minute). Do not refresh..."):
+    install_result = install_heavy_packages()
+
+if install_result.returncode != 0:
+    st.error("There was a severe error installing dependencies!")
+    st.code(install_result.stderr + "\n" + install_result.stdout)
+    st.stop()
+else:
+    st.success("System initialized successfully!")
+
+import tensorflow as tf
 import cv2
 import numpy as np
-
 IMG_SIZE = 224
 MAX_SEQ_LENGTH = 20
 NUM_FEATURES = 2048
