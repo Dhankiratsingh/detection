@@ -14,8 +14,17 @@ if sys.version_info >= (3, 12):
     st.warning(f"⚠️ Note: You are running Python {python_version}. If you are deploying to Streamlit Cloud and face deployment errors, you may need to recreate your app using Python 3.11 in the Advanced Settings.")
 
 
+class DummyResult:
+    returncode = 0
+    stdout = "Skipped pip install (local environment)"
+    stderr = ""
+
 @st.cache_resource
 def install_heavy_packages():
+    # Only run the heavy pip installer if we're actually on Streamlit Community Cloud!
+    if os.environ.get("IS_STREAMLIT_CLOUD") != "true":
+        return DummyResult()
+        
     # Safe fallback if ARM64
     tf_pkg = "tensorflow" if arch != "aarch64" else "tensorflow-aarch64"
     out = subprocess.run(
