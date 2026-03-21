@@ -17,7 +17,7 @@ if sys.version_info >= (3, 12):
 @st.cache_resource
 def install_heavy_packages():
     # Safe fallback if ARM64
-    tf_pkg = "tensorflow-cpu==2.15.0" if arch != "aarch64" else "tensorflow-aarch64"
+    tf_pkg = "tensorflow" if arch != "aarch64" else "tensorflow-aarch64"
     out = subprocess.run(
         [sys.executable, "-m", "pip", "install", tf_pkg, "opencv-python-headless", "numpy", "--no-cache-dir"],
         capture_output=True, text=True
